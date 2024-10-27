@@ -1,42 +1,37 @@
-local gui = require("gui")
-local Explore = require("dungeon.explore")
+-- if true then return end
 
-local local_player = get_local_player()
-if not local_player then
-    return
+local gui          = require "gui"
+local task_manager = require "core.task_manager"
+local settings     = require "core.settings"
+
+local local_player, player_position
+
+local function update_locals()
+    local_player = get_local_player()
+    player_position = local_player and local_player:get_position()
 end
 
-local enabled = false
+local function main_pulse()
 
-local function PlayerInUndercity()
-    local zone_name = world.get_current_world():get_current_zone_name()
-    return zone_name:find("X1_Undercity")
+    settings:update_settings()
+    if not local_player or not settings.enabled then return end
+    task_manager.execute_tasks()
 end
 
-local function PlayerHaveUndercityQuest()
-    local quests = get_quests()
-    for _, quest in pairs(quests) do
-        if quest:get_name():find("X1_Undercity_Trackers") then
-            return true
-        end
+local function render_pulse()
+    if not local_player or not settings.enabled then return end
+    local current_task = task_manager.get_current_task()
+    if current_task then
+        local px, py, pz = player_position:x(), player_position:y(), player_position:z()
+        local draw_pos = vec3:new(px, py - 2, pz + 3)
+        graphics.text_3d("Current Task: " .. current_task.name, draw_pos, 14, color_white(255))
     end
-
-    return false
-end
-
-local function checkPlayerValidToRun()
-    return PlayerInUndercity() and PlayerHaveUndercityQuest()
 end
 
 on_update(function()
-    enabled = gui.elements.main_toggle:get()
-
-    if enabled then
-        if checkPlayerValidToRun() then
-            -- console.print("Player is in Undercity")
-            Explore.run()
-        end
-    end
+    update_locals()
+    main_pulse()
 end)
 
 on_render_menu(gui.render)
+on_render(render_pulse)
