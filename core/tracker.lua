@@ -1,5 +1,6 @@
 local tracker = {
-    start_location_reached = false
+    undercity_start_time = 0,
+    interacting_enticement = false
 }
 
 return tracker

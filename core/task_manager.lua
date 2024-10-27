@@ -38,10 +38,11 @@ function task_manager.execute_tasks()
 end
 
 local task_files = {
+    "interact_enticement",
+    "interact_undercity_portal",
+    "kill_monsters",
+    "explore_undercity",
     "enter_portal",
-    -- "explore_undercity",
-    -- "interact_altars",
-    -- "kill_monsters",
     -- "kill_boss",
     -- "exit_undercity"
 }

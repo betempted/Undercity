@@ -1,26 +1,20 @@
 local utils = require "core.utils"
-local enums = require "data.enums"
-local tracker = require "core.tracker"
 local explorer = require "core.explorer"
+local enums = require "data.enums"
 
 local portal_interaction_time = 0
 
 local task = {
-    name = "Enter Portal",
+    name = "Interact Undercity Portal",
     shouldExecute = function()
-        local portal = utils.get_undercity_portal()
-        return utils.get_undercity_portal()
+        return explorer.is_task_running and utils.get_undercity_portal() and utils.player_in_find_zone(enums.zone_names.undercity_zone) and utils.player_on_find_quest(enums.quest_names.undercity_quest)
     end,
     Execute = function()
         local portal = utils.get_undercity_portal()
         if portal then
-            local player_in_naha = utils.player_in_zone(enums.zone_names.naha_zone)
-            if player_in_naha then
+            if utils.distance_to(portal) < 2 then
                 interact_object(portal)
-                tracker.start_location_reached = false
                 portal_interaction_time = get_time_since_inject()
-                explorer.reset_exploration()
-                explorer.is_task_running = true
 
                 -- Add the 5-second timer check
                 local current_time = get_time_since_inject()
@@ -31,10 +25,10 @@ local task = {
                     portal_interaction_time = 0
                 end
             else
-                console.print("Player is not in Naha. Using regular interact_object.")
+                explorer.set_custom_target(portal:get_position())
+                console.print("Moving to portal")
             end
         end
     end
 }
-
 return task
