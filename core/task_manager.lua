@@ -30,7 +30,6 @@ function task_manager.execute_tasks()
     end
 
     -- Set the flag in the explorer module
-    -- explorer.is_task_running = is_exit_or_finish_active
 
     if not current_task then
         current_task = { name = "Idle" } -- Default state when no task is active

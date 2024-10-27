@@ -20,7 +20,6 @@ local task = {
                 tracker.start_location_reached = false
                 portal_interaction_time = get_time_since_inject()
                 explorer.reset_exploration()
-                explorer.is_task_running = true
 
                 -- Add the 5-second timer check
                 local current_time = get_time_since_inject()

@@ -6,7 +6,7 @@ local task = {
     name = "Interact Enticement",
     shouldExecute = function()
         local enticement = utils.get_enticement()
-        return enticement and enticement:is_interactable() and explorer.is_task_running
+        return enticement and enticement:is_interactable()
     end,
     Execute = function()
         local enticement = utils.get_enticement()

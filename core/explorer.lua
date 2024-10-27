@@ -167,7 +167,7 @@ local function get_grid_key(point)
 end
 
 -- Update the mark_area_as_explored function
-local function mark_area_as_explored(center, radius)
+function explorer:mark_area_as_explored(center, radius)
     console.print(string.format("Checking if area can be marked as explored: Center (%.2f, %.2f, %.2f), Radius: %.2f", center:x(), center:y(), center:z(), radius))
     
     -- Check distance from existing circles
@@ -235,7 +235,7 @@ local function check_walkable_area()
     local check_radius = 5 -- Überprüfungsradius in Metern
 
     console.print(string.format("Player position: (%.2f, %.2f, %.2f)", player_pos:x(), player_pos:y(), player_pos:z()))
-    mark_area_as_explored(player_pos, exploration_radius)
+    explorer:mark_area_as_explored(player_pos, exploration_radius)
 
     for x = -check_radius, check_radius, grid_size do
         for y = -check_radius, check_radius, grid_size do
@@ -328,7 +328,6 @@ function explorer.reset_exploration()
     path_index = 1
     exploration_mode = "unexplored"
     last_movement_direction = nil
-    explorer.is_task_running = false
 
     console.print("Exploration reset. All areas marked as unexplored.")
 end
@@ -726,7 +725,16 @@ local function move_to_target()
             last_path_recalculation = current_time
         end
 
-        local next_point = current_path[path_index]
+        local next_point
+        if current_path and path_index and current_path[path_index] then
+            next_point = current_path[path_index]
+        else
+            console.print("Invalid path or index, resetting path")
+            path_index = 1
+            current_path = nil
+            target_position = find_target(false)
+            return
+        end
         if next_point and not next_point:is_zero() then
             pathfinder.request_move(next_point)
         end
@@ -742,7 +750,7 @@ local function move_to_target()
 
         if calculate_distance(player_pos, target_position) < 2 then
             console.print("Reached target position")
-            mark_area_as_explored(player_pos, exploration_radius)
+            explorer:mark_area_as_explored(player_pos, exploration_radius)
             if current_circle_target then
                 current_circle_target.visited = true
                 console.print("Marked current circle as visited")
@@ -952,7 +960,7 @@ local function check_and_create_circle()
         current_time - last_circle_time >= min_time_between_circles) then
         
         console.print("Creating new circle")
-        mark_area_as_explored(player_pos, exploration_radius)
+        explorer:mark_area_as_explored(player_pos, exploration_radius)
         console.print(string.format("Total explored circles: %d", #explored_circles))
         
         last_circle_position = {x = player_pos.x, y = player_pos.y, z = player_pos.z}

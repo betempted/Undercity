@@ -8,9 +8,7 @@ local task  = {
         return utils.player_in_find_zone(enums.zone_names.undercity_zone) and utils.player_on_find_quest(enums.quest_names.undercity_quest)
     end,
     Execute = function()
-        if not explorer.is_task_running then
-            explorer.enabled = true
-        end
+        explorer.enabled = true
     end
 }
 return task

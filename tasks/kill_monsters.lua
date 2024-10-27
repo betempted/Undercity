@@ -7,7 +7,7 @@ local stuck_position = nil
 local task = {
     name = "Kill Monsters",
     shouldExecute = function()
-        return utils.get_closest_enemy() and explorer.is_task_running
+        return utils.get_closest_enemy()
     end,
     Execute = function()
         explorer.current_task = "Kill Monsters"
@@ -27,7 +27,7 @@ local task = {
             stuck_position = nil
         end
 
-        local distance_check = settings.melee_logic and 2 or 6.5
+        local distance_check = settings.melee_logic and 2 or 6
         local enemy = utils.get_closest_enemy()
         if not enemy then return false end
 
@@ -45,6 +45,7 @@ local task = {
 
                 explorer:clear_path_and_target()
                 explorer:set_custom_target(enemy_pos:get_extended(player_pos, -1.0))
+                explorer:mark_area_as_explored(player_pos, 5)
                 explorer:move_to_target()
             else
                 -- do nothing for now due to being ranged
