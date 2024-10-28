@@ -80,7 +80,7 @@ local explorer = {
 }
 local explored_areas = {}
 local target_position = nil
-local grid_size = 1.5  -- Updated grid_size calculation
+local grid_size = settings.explorer_grid_size / 10  -- Updated grid_size calculation
 local exploration_radius = 16   -- Radius in which areas are considered explored
 local explored_buffer = 2      -- Buffer around explored areas in meters
 local max_target_distance = 120 -- Maximum distance for a new target
@@ -535,7 +535,6 @@ local function find_target(include_explored)
                     return furthest_circle.center
                 else
                     --console.print("No explored circles found. Resetting exploration.")
-                    --explorer.reset_exploration()
                     exploration_mode = "unexplored"
                     return find_central_unexplored_target()
                 end
@@ -689,10 +688,6 @@ local last_path_recalculation = 0.0
 -- Update the move_to_target function
 local function move_to_target()
     --console.print("Moving to target")
-    
-    if tracker.interacting_beacon then
-        return
-    end
 
     if target_position then
 
@@ -729,16 +724,7 @@ local function move_to_target()
             last_path_recalculation = current_time
         end
 
-        local next_point
-        if current_path and path_index and current_path[path_index] then
-            next_point = current_path[path_index]
-        else
-            console.print("Invalid path or index, resetting path")
-            path_index = 1
-            current_path = nil
-            target_position = find_target(false)
-            return
-        end
+        local next_point = current_path[path_index]
         if next_point and not next_point:is_zero() then
             pathfinder.request_move(next_point)
         end
@@ -752,13 +738,7 @@ local function move_to_target()
             path_index = path_index + 1
         end
 
-        local reach_distance = 2
-
-        if tracker.interacting_beacon then
-            reach_distance = 5
-        end
-
-        if calculate_distance(player_pos, target_position) < reach_distance then
+        if calculate_distance(player_pos, target_position) < 2 then
             console.print("Reached target position")
             explorer:mark_area_as_explored(player_pos, exploration_radius)
             if current_circle_target then
@@ -868,6 +848,14 @@ on_update(function()
         return
     end
 
+    if tracker.interacting_beacon then
+        return
+    end
+
+    if tracker.killing_boss then
+        return
+    end
+
     local world = world.get_current_world()
     if world then
         local world_name = world:get_name()
@@ -879,7 +867,7 @@ on_update(function()
     local current_core_time = get_time_since_inject()
     if current_core_time - last_call_time > 0.85 then
         last_call_time = current_core_time
-        is_player_in_undercity = utils.player_in_find_zone(enums.zone_names.undercity_zone) and utils.player_on_find_quest(enums.quest_names.undercity_quest) and settings.enabled
+        is_player_in_undercity = utils.player_in_find_zone(enums.zone_names.undercity_zone) and utils.player_on_find_quest(enums.quest_names.undercity_quest)
         if not is_player_in_undercity then
             return
         end

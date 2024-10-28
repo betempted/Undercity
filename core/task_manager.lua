@@ -37,14 +37,14 @@ function task_manager.execute_tasks()
 end
 
 local task_files = {
-    "interact_beacon",
     "interact_enticement",
+    "interact_beacon",
     "interact_undercity_portal",
+    "kill_boss",
     "kill_monsters",
+    "exit_undercity",
     "explore_undercity",
     "enter_portal",
-    -- "kill_boss",
-    -- "exit_undercity"
 }
 
 for _, file in ipairs(task_files) do
