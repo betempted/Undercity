@@ -852,7 +852,7 @@ local function draw_explored_area_bounds()
 end
 
 local last_call_time = 0.0
-local is_player_in_pit = false
+local is_player_in_undercity = false
 on_update(function()
     if not settings.enabled then
         return
@@ -869,8 +869,8 @@ on_update(function()
     local current_core_time = get_time_since_inject()
     if current_core_time - last_call_time > 0.85 then
         last_call_time = current_core_time
-        is_player_in_pit = (utils.player_in_zone("EGD_MSWK_World_02") or utils.player_in_zone("EGD_MSWK_World_01")) and settings.enabled
-        if not is_player_in_pit then
+        is_player_in_undercity = utils.player_in_find_zone(enums.zone_names.undercity_zone) and utils.player_on_find_quest(enums.quest_names.undercity_quest) and settings.enabled
+        if not is_player_in_undercity then
             return
         end
 
