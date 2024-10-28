@@ -80,7 +80,7 @@ local explorer = {
 }
 local explored_areas = {}
 local target_position = nil
-local grid_size = 1.5  -- Updated grid_size calculation
+local grid_size = settings.explorer_grid_size / 10  -- Updated grid_size calculation
 local exploration_radius = 16   -- Radius in which areas are considered explored
 local explored_buffer = 2      -- Buffer around explored areas in meters
 local max_target_distance = 120 -- Maximum distance for a new target
