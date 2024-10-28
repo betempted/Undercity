@@ -40,10 +40,10 @@ local task_files = {
     "interact_beacon",
     "interact_enticement",
     "interact_undercity_portal",
+    "kill_boss",
     "kill_monsters",
     "explore_undercity",
     "enter_portal",
-    -- "kill_boss",
     -- "exit_undercity"
 }
 

@@ -15,6 +15,9 @@ local enums = {
     },
     beacon_names = {
         beacon = "X1_Undercity_Enticements_SpiritBeaconSwitch"
+    },
+    warp_pad_names = {
+        warp_pad = "X1_Undercity_WarpPad"
     }
 }
 

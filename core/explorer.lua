@@ -862,6 +862,10 @@ on_update(function()
         return
     end
 
+    if tracker.killing_boss then
+        return
+    end
+
     local world = world.get_current_world()
     if world then
         local world_name = world:get_name()

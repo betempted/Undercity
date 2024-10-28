@@ -33,6 +33,11 @@ local task = {
         else
             console.print("Found but not interactable")
         end
+
+        local warp_pad = utils.get_warp_pad()
+        if warp_pad then
+            console.print("Found warp pad") 
+        end
     end
 }
 return task

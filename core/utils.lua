@@ -19,6 +19,16 @@ function utils.get_undercity_portal()
     return nil
 end
 
+function utils.get_warp_pad()
+    local actors = actors_manager:get_all_actors()
+    for _, actor in pairs(actors) do
+        local name = actor:get_skin_name()
+        if name == enums.warp_pad_names.warp_pad then
+            return actor
+        end
+    end
+end
+
 function utils.player_in_zone(zone_name)
     return get_current_world():get_current_zone_name() == zone_name
 end
@@ -35,6 +45,16 @@ function utils.player_on_find_quest(quest_name)
         end
     end
     return false
+end
+
+function utils.get_boss()
+    local enemies = target_selector.get_near_target_list(get_player_position(), 90)
+    for _, enemy in pairs(enemies) do
+        if enemy:is_boss() then
+            return enemy
+        end
+    end
+    return nil
 end
 
 function utils.get_closest_enemy()
