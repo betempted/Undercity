@@ -5,7 +5,7 @@ local tracker = require "core.tracker"
 local task = {
     name = "Kill Boss",
     shouldExecute = function()
-        return utils.get_boss()
+        return utils.get_boss() and tracker.portal_time >= 3
     end,
     Execute = function()
         local boss = utils.get_boss()

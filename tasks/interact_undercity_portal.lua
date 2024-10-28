@@ -1,6 +1,7 @@
 local utils = require "core.utils"
 local explorer = require "core.explorer"
 local enums = require "data.enums"
+local tracker = require "core.tracker"
 
 local portal_interaction_time = 0
 
@@ -13,6 +14,7 @@ local task = {
         local portal = utils.get_undercity_portal()
         if portal then
             if utils.distance_to(portal) < 2 then
+                tracker.portal_time = tracker.portal_time + 1
                 interact_object(portal)
                 console.print("Interacting with portal")
             else
