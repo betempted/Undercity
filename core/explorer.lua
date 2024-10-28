@@ -689,10 +689,6 @@ local last_path_recalculation = 0.0
 -- Update the move_to_target function
 local function move_to_target()
     --console.print("Moving to target")
-    
-    if tracker.interacting_beacon then
-        return
-    end
 
     if target_position then
 
@@ -752,13 +748,7 @@ local function move_to_target()
             path_index = path_index + 1
         end
 
-        local reach_distance = 2
-
-        if tracker.interacting_beacon then
-            reach_distance = 5
-        end
-
-        if calculate_distance(player_pos, target_position) < reach_distance then
+        if calculate_distance(player_pos, target_position) < 2 then
             console.print("Reached target position")
             explorer:mark_area_as_explored(player_pos, exploration_radius)
             if current_circle_target then
@@ -868,6 +858,10 @@ on_update(function()
         return
     end
 
+    if tracker.interacting_beacon then
+        return
+    end
+
     local world = world.get_current_world()
     if world then
         local world_name = world:get_name()
@@ -879,7 +873,7 @@ on_update(function()
     local current_core_time = get_time_since_inject()
     if current_core_time - last_call_time > 0.85 then
         last_call_time = current_core_time
-        is_player_in_undercity = utils.player_in_find_zone(enums.zone_names.undercity_zone) and utils.player_on_find_quest(enums.quest_names.undercity_quest) and settings.enabled
+        is_player_in_undercity = utils.player_in_find_zone(enums.zone_names.undercity_zone) and utils.player_on_find_quest(enums.quest_names.undercity_quest)
         if not is_player_in_undercity then
             return
         end
