@@ -689,6 +689,10 @@ local last_path_recalculation = 0.0
 -- Update the move_to_target function
 local function move_to_target()
     --console.print("Moving to target")
+    
+    if tracker.interacting_beacon then
+        return
+    end
 
     if target_position then
 
@@ -748,46 +752,42 @@ local function move_to_target()
             path_index = path_index + 1
         end
 
-        local reached_distance = 2
+        local reach_distance = 2
+
         if tracker.interacting_beacon then
-            reached_distance = 6
+            reach_distance = 5
         end
 
-        if not tracker.interacting_beacon then
-            if calculate_distance(player_pos, target_position) < reached_distance then
-                if tracker.interacting_beacon then
-                    tracker.interacting_beacon = false
-                end
-                console.print("Reached target position")
-                explorer:mark_area_as_explored(player_pos, exploration_radius)
-                if current_circle_target then
-                    current_circle_target.visited = true
-                    console.print("Marked current circle as visited")
-                end
-                current_circle_target = nil
-                target_position = nil
-                current_path = {}
-                path_index = 1
+        if calculate_distance(player_pos, target_position) < reach_distance then
+            console.print("Reached target position")
+            explorer:mark_area_as_explored(player_pos, exploration_radius)
+            if current_circle_target then
+                current_circle_target.visited = true
+                console.print("Marked current circle as visited")
+            end
+            current_circle_target = nil
+            target_position = nil
+            current_path = {}
+            path_index = 1
 
-                -- Check for nearby unexplored points when in explored mode
-                if exploration_mode == "explored" then
-                    console.print("In explored mode, checking for nearby unexplored points")
-                    local nearby_unexplored_point = find_nearest_unexplored_point(player_pos, exploration_radius)
-                    if nearby_unexplored_point then
-                        exploration_mode = "unexplored"
-                        target_position = nearby_unexplored_point
-                        console.print("Found nearby unexplored area. Switching back to unexplored mode.")
-                        last_explored_targets = {}
-                        current_path = nil
-                        path_index = 1
-                    else
-                        console.print("No nearby unexplored points, finding new explored target")
-                        target_position = find_explored_direction_target()
-                    end
+            -- Check for nearby unexplored points when in explored mode
+            if exploration_mode == "explored" then
+                console.print("In explored mode, checking for nearby unexplored points")
+                local nearby_unexplored_point = find_nearest_unexplored_point(player_pos, exploration_radius)
+                if nearby_unexplored_point then
+                    exploration_mode = "unexplored"
+                    target_position = nearby_unexplored_point
+                    console.print("Found nearby unexplored area. Switching back to unexplored mode.")
+                    last_explored_targets = {}
+                    current_path = nil
+                    path_index = 1
                 else
-                    console.print("Finding new target")
-                    target_position = find_target(false)
+                    console.print("No nearby unexplored points, finding new explored target")
+                    target_position = find_explored_direction_target()
                 end
+            else
+                console.print("Finding new target")
+                target_position = find_target(false)
             end
         end
     else

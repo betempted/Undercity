@@ -6,14 +6,18 @@ local task = {
     name = "Interact Beacon",
     shouldExecute = function()
         local beacon = utils.get_beacon()
-        return beacon and beacon:is_interactable()
+        local is_valid = beacon and beacon:is_interactable()
+        if not is_valid then
+            tracker.interacting_beacon = false
+        end
+        return is_valid
     end,
     Execute = function()
         local beacon = utils.get_beacon()
         if beacon then
             if beacon:is_interactable() then
                 tracker.interacting_beacon = true
-                if utils.distance_to(beacon) < 6 then
+                if utils.distance_to(beacon) < 4 then
                     interact_object(beacon)
                     console.print("Interacting with beacon")
                 else
