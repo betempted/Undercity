@@ -12,6 +12,9 @@ local enums = {
     },
     enticement_names = {
         enticement = "SpiritHearth_Switch"
+    },
+    beacon_names = {
+        beacon = "X1_Undercity_Enticements_SpiritBeaconSwitch"
     }
 }
 

@@ -72,6 +72,18 @@ function utils.get_enticement()
             return actor
         end
     end
+    return nil
+end
+
+function utils.get_beacon()
+    local actors = actors_manager:get_all_actors()
+    for _, actor in pairs(actors) do
+        local name = actor:get_skin_name()
+        if name == enums.beacon_names.beacon then
+            return actor
+        end
+    end
+    return nil
 end
 
 return utils
