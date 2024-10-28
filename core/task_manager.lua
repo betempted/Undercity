@@ -42,9 +42,9 @@ local task_files = {
     "interact_undercity_portal",
     "kill_boss",
     "kill_monsters",
+    "exit_undercity",
     "explore_undercity",
     "enter_portal",
-    -- "exit_undercity"
 }
 
 for _, file in ipairs(task_files) do

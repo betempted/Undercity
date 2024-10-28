@@ -535,7 +535,6 @@ local function find_target(include_explored)
                     return furthest_circle.center
                 else
                     --console.print("No explored circles found. Resetting exploration.")
-                    --explorer.reset_exploration()
                     exploration_mode = "unexplored"
                     return find_central_unexplored_target()
                 end
@@ -725,16 +724,7 @@ local function move_to_target()
             last_path_recalculation = current_time
         end
 
-        local next_point
-        if current_path and path_index and current_path[path_index] then
-            next_point = current_path[path_index]
-        else
-            console.print("Invalid path or index, resetting path")
-            path_index = 1
-            current_path = nil
-            target_position = find_target(false)
-            return
-        end
+        local next_point = current_path[path_index]
         if next_point and not next_point:is_zero() then
             pathfinder.request_move(next_point)
         end

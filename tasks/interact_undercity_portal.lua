@@ -14,9 +14,9 @@ local task = {
         local portal = utils.get_undercity_portal()
         if portal then
             if utils.distance_to(portal) < 2 then
-                tracker.portal_time = tracker.portal_time + 1
                 interact_object(portal)
                 console.print("Interacting with portal")
+                explorer.reset_exploration()
             else
                 explorer:clear_path_and_target()
                 explorer:set_custom_target(portal:get_position())

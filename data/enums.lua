@@ -18,6 +18,11 @@ local enums = {
     },
     warp_pad_names = {
         warp_pad = "X1_Undercity_WarpPad"
+    },
+    boss_zone = {
+        ziggurat = "X1_Undercity_Ziggurat_01",
+        bugcave = "X1_Undercity_BugCave",
+        snaketemple = "X1_Undercity_SnakeTemple_01"
     }
 }
 
