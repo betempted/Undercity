@@ -16,6 +16,7 @@ local task = {
                 explorer:set_custom_target(enticement:get_position())
                 if utils.distance_to(enticement) < 2 then
                     interact_object(enticement)
+                    tracker.enticement_active = tracker.enticement_active + 1
                     console.print("Interacting with enticement")
                 else
                     explorer:move_to_target()

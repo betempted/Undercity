@@ -2,6 +2,17 @@ local enums = require "data.enums"
 local settings = require "core.settings"
 local utils = {}
 
+function utils.find_nearby_items()
+    local items = actors_manager:get_all_items()
+    for _, item in pairs(items) do
+        local item_info = item:get_item_info()
+        if item_info:get_rarity() >= 5 then
+            return item, item:get_position()
+        end
+    end
+    return nil, nil
+end
+
 function utils.player_in_boss_room()
     local actors = actors_manager:get_all_actors()
     for _, actor in pairs(actors) do

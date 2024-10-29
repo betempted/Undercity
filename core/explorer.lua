@@ -332,6 +332,8 @@ function explorer.reset_exploration()
     tracker.finish_undercity = false
     tracker.player_in_boss_room = false
     tracker.killing_boss = false
+    tracker.enticement_active = 0
+    tracker.wait_to_exit = 0
 
     console.print("Exploration reset. All areas marked as unexplored.")
 end

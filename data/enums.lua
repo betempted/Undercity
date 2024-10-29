@@ -18,6 +18,9 @@ local enums = {
     },
     warp_pad_names = {
         warp_pad = "WarpPad"
+    },
+    powerup_names = {
+        powerup = "Experience_PowerUp_Actor"
     }
 }
 
