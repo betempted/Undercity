@@ -2,6 +2,17 @@ local enums = require "data.enums"
 local settings = require "core.settings"
 local utils = {}
 
+function utils.get_undercity_brazier()
+    local actors = actors_manager:get_all_actors()
+    for _, actor in pairs(actors) do
+        local name = actor:get_skin_name()
+        if name == enums.brazier_names.brazier then
+            return actor
+        end
+    end
+    return nil
+end
+
 function utils.find_nearby_items()
     local items = actors_manager:get_all_items()
     for _, item in pairs(items) do

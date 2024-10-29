@@ -42,6 +42,7 @@ local task_files = {
     "kill_monsters",
     "exit_undercity",
     "explore_undercity",
+    "open_undercity_portal",
     "enter_portal",
 }
 

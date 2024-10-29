@@ -6,8 +6,7 @@ local explorer = require "core.explorer"
 local task = {
     name = "Enter Portal",
     shouldExecute = function()
-        local portal = utils.get_undercity_portal()
-        return utils.get_undercity_portal()
+        return utils.get_undercity_portal() and utils.player_in_zone(enums.zone_names.naha_zone)
     end,
     Execute = function()
         local portal = utils.get_undercity_portal()

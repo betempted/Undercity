@@ -21,6 +21,9 @@ local enums = {
     },
     powerup_names = {
         powerup = "Experience_PowerUp_Actor"
+    },
+    brazier_names = {
+        brazier = "Aubrie_Test_Undercity_Crafter"
     }
 }
 
