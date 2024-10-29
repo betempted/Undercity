@@ -1,7 +1,6 @@
 local utils = require "core.utils"
 local enums = require "data.enums"
 local tracker = require "core.tracker"
-local explorer = require "core.explorer"
 
 local task  = {
     name = "Explore Undercity (E: " .. tostring(tracker.enticement_active) .. ")",
@@ -29,7 +28,7 @@ local task  = {
                     pathfinder.request_move(item_pos)
                 else
                     if tracker.wait_to_exit == 0 and tracker.player_in_boss_room and utils.player_in_find_zone(enums.zone_names.undercity_zone) then
-                        tracker.wait_to_exit = 5
+                        tracker.wait_to_exit = 6
                         console.print("Wait to exit: " .. tostring(tracker.wait_to_exit))
                     end
                 end

@@ -1,11 +1,12 @@
 local utils      = require "core.utils"
 local settings   = require "core.settings"
 local explorer   = require "core.explorer"
+local tracker    = require "core.tracker"
 
 local stuck_position = nil
 
 local task = {
-    name = "Kill Monsters",
+    name = "Kill Monsters (E: " .. tostring(tracker.enticement_active) .. ")",
     shouldExecute = function()
         return utils.get_closest_enemy()
     end,

@@ -19,7 +19,7 @@ on_update(function()
 
         if tracker.wait_to_exit > 0 then
             tracker.wait_to_exit = tracker.wait_to_exit - 1
-            if tracker.wait_to_exit == 0 then
+            if tracker.wait_to_exit == 1 then
                 tracker.exit_undercity = true
             end
         end
