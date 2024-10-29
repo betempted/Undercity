@@ -28,7 +28,7 @@ local task  = {
                     console.print("Move near items")
                     pathfinder.request_move(item_pos)
                 else
-                    if tracker.wait_to_exit == 0 and tracker.player_in_boss_room then
+                    if tracker.wait_to_exit == 0 and tracker.player_in_boss_room and utils.player_in_find_zone(enums.zone_names.undercity_zone) then
                         tracker.wait_to_exit = 5
                         console.print("Wait to exit: " .. tostring(tracker.wait_to_exit))
                     end
