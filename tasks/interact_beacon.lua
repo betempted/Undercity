@@ -19,13 +19,13 @@ local task = {
         local beacon = utils.get_beacon()
         if beacon then
             if beacon:is_interactable() then
+                explorer:clear_path_and_target()
+                explorer:set_custom_target(beacon:get_position())
                 if utils.distance_to(beacon) < 4 then
                     tracker.interacting_beacon = true
                     interact_object(beacon)
                     console.print("Interacting with beacon")
                 else
-                    explorer:clear_path_and_target()
-                    explorer:set_custom_target(beacon:get_position())
                     explorer:move_to_target()
                     console.print("Moving to beacon")
                 end
@@ -36,7 +36,9 @@ local task = {
 
         local warp_pad = utils.get_warp_pad()
         if warp_pad then
-            console.print("Found warp pad") 
+            if tracker.warp_pad_position == nil then
+                tracker.warp_pad_position = warp_pad:get_position()
+            end
         end
     end
 }

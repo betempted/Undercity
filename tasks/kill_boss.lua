@@ -6,18 +6,17 @@ local enums = require "data.enums"
 local task = {
     name = "Kill Boss",
     shouldExecute = function()
-        return utils.get_boss() and (utils.player_in_zone(enums.boss_zone.ziggurat) or utils.player_in_zone(enums.boss_zone.bugcave) or utils.player_in_zone(enums.boss_zone.snaketemple))
+        local boss = utils.get_boss()
+        return boss and tracker.player_in_boss_room
     end,
     Execute = function()
         local boss = utils.get_boss()
         local boss_pos = boss:get_position()
-        explorer:clear_path_and_target()
         explorer:set_custom_target(boss_pos)
-        -- explorer:move_to_target()
-        tracker.killing_boss = true
         pathfinder.request_move(boss_pos)
+        tracker.killing_boss = true
 
-        console.print("Killing to boss")
+        console.print("Moving to boss, killing boss")
     end
 }
 

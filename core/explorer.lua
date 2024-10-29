@@ -328,6 +328,13 @@ function explorer.reset_exploration()
     path_index = 1
     exploration_mode = "unexplored"
     last_movement_direction = nil
+    tracker.exit_undercity = false
+    tracker.finish_undercity = false
+    tracker.player_in_boss_room = false
+    tracker.killing_boss = false
+    tracker.enticement_active = 0
+    tracker.wait_to_exit = 0
+    tracker.warp_pad_position = nil
 
     console.print("Exploration reset. All areas marked as unexplored.")
 end
@@ -856,6 +863,10 @@ on_update(function()
         return
     end
 
+    if tracker.finish_undercity then
+        return
+    end
+
     local world = world.get_current_world()
     if world then
         local world_name = world:get_name()
@@ -867,7 +878,7 @@ on_update(function()
     local current_core_time = get_time_since_inject()
     if current_core_time - last_call_time > 0.85 then
         last_call_time = current_core_time
-        is_player_in_undercity = utils.player_in_find_zone(enums.zone_names.undercity_zone) and utils.player_on_find_quest(enums.quest_names.undercity_quest)
+        is_player_in_undercity = utils.player_in_find_zone(enums.zone_names.undercity_zone)
         if not is_player_in_undercity then
             return
         end
