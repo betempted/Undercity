@@ -36,7 +36,9 @@ local task = {
 
         local warp_pad = utils.get_warp_pad()
         if warp_pad then
-            console.print("==== Found warp pad ====") 
+            if tracker.warp_pad_position == nil then
+                tracker.warp_pad_position = warp_pad:get_position()
+            end
         end
     end
 }

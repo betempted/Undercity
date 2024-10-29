@@ -6,7 +6,8 @@ local tracker = {
     finish_undercity = false,
     player_in_boss_room = false,
     wait_to_exit = 0,
-    enticement_active = 0
+    enticement_active = 0,
+    warp_pad_position = nil
 }
 
 local last_tick_time = 0

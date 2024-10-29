@@ -334,6 +334,7 @@ function explorer.reset_exploration()
     tracker.killing_boss = false
     tracker.enticement_active = 0
     tracker.wait_to_exit = 0
+    tracker.warp_pad_position = nil
 
     console.print("Exploration reset. All areas marked as unexplored.")
 end
