@@ -2,6 +2,29 @@ local enums = require "data.enums"
 local settings = require "core.settings"
 local utils = {}
 
+function utils.player_in_boss_room()
+    local actors = actors_manager:get_all_actors()
+    for _, actor in pairs(actors) do
+        local name = actor:get_skin_name()
+        if name == "Healing_Well_Basic" then
+            return utils.distance_to(actor) < 100
+        end
+    end
+    return false
+end
+
+function utils.check_if_there_is_a_stash()
+    local actors = actors_manager:get_all_actors()
+    for _, actor in pairs(actors) do
+        local name = actor:get_skin_name()
+        if name == "Stash_NoCollision" then
+            return utils.distance_to(actor) < 100
+        end
+    end
+
+    return false
+end
+
 function utils.distance_to(target)
     local player_pos = get_player_position()
     local target_pos = target:get_position()
@@ -23,7 +46,7 @@ function utils.get_warp_pad()
     local actors = actors_manager:get_all_actors()
     for _, actor in pairs(actors) do
         local name = actor:get_skin_name()
-        if name == enums.warp_pad_names.warp_pad then
+        if name:find(enums.warp_pad_names.warp_pad) then
             return actor
         end
     end

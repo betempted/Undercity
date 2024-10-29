@@ -12,12 +12,12 @@ local task = {
         local enticement = utils.get_enticement()
         if enticement then
             if enticement:is_interactable() then
+                explorer:clear_path_and_target()
+                explorer:set_custom_target(enticement:get_position())
                 if utils.distance_to(enticement) < 2 then
                     interact_object(enticement)
                     console.print("Interacting with enticement")
                 else
-                    explorer:clear_path_and_target()
-                    explorer:set_custom_target(enticement:get_position())
                     explorer:move_to_target()
 
                     console.print("Moving to enticement")
