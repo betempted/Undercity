@@ -285,7 +285,7 @@ local function find_distant_explored_circle()
     end
 
     console.print("No valid circles found, resetting exploration")
-    explorer.reset_exploration()
+    -- explorer.reset_exploration()
     return nil
 end
 
@@ -310,7 +310,7 @@ local function find_explored_direction_target()
     end
     
     console.print("No valid explored targets found. Resetting exploration.")
-    explorer.reset_exploration()
+    -- explorer.reset_exploration()
     return nil
 end
 
