@@ -27,7 +27,7 @@ function gui.render()
     if gui.elements.settings_tree:push("Settings") then
         gui.elements.melee_logic:render("Melee", "Do we need to move into Melee?")
         gui.elements.elite_only_toggle:render("Elite Only", "Do we only want to seek out elites in the Pit?")
-        gui.elements.enticement_slider:render("Eenticement", "How many at least enticements you want to activate before go next floor?")
+        gui.elements.enticement_slider:render("Enticement", "How many at least enticements you want to activate before go next floor?")
         -- gui.elements.path_angle_slider:render("Path Angle", "Adjust the angle for path filtering (0-360 degrees)")
         gui.elements.explorer_grid_size_slider:render("Explorer Grid Size", "Adjust the grid size for exploration (1.0-2.0)")
         gui.elements.settings_tree:pop()
