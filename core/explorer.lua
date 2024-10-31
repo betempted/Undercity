@@ -709,7 +709,7 @@ local function move_to_target()
         end
 
         if not current_path or #current_path == 0 or path_index > #current_path then
-            console.print("Calculating new path to target")
+            -- console.print("Calculating new path to target")
             local current_core_time = get_time_since_inject()
             path_index = 1
             current_path = nil
@@ -725,7 +725,7 @@ local function move_to_target()
 
         local current_time = get_time_since_inject()
         if current_time - last_path_recalculation > path_recalculation_interval then
-            console.print("Recalculating path")
+            -- console.print("Recalculating path")
             local player_pos = get_player_position()
             current_path = a_star(player_pos, target_position)
             path_index = 1
@@ -774,7 +774,7 @@ local function move_to_target()
                     target_position = find_explored_direction_target()
                 end
             else
-                console.print("Finding new target")
+                -- console.print("Finding new target")
                 target_position = find_target(false)
             end
         end
@@ -852,7 +852,8 @@ end
 local last_call_time = 0.0
 local is_player_in_undercity = false
 on_update(function()
-    if not settings.enabled then
+    local local_player = get_local_player()
+    if not settings.enabled or not local_player then
         return
     end
 
@@ -895,7 +896,6 @@ on_update(function()
             current_path = {}
             path_index = 1
 
-            local local_player = get_local_player()
             if local_player and local_player:is_dead() then
                 revive_at_checkpoint()
             else

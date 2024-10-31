@@ -25,12 +25,10 @@ local task = {
                 explorer:set_custom_target(enticement:get_position())
                 if utils.distance_to(enticement) < 2 then
                     interact_object(enticement)
-                    if enticement:is_interactable() then    
-                        tracker.enticement_active = tracker.enticement_active + 1
+                    if not enticement:is_interactable() then
                         tracker.actived_enticement[enticement_pos_text] = true
-                        console.print("Interacting with enticement")
-                    else
-                        console.print("Eenticement is not interactable")
+                        tracker.enticement_active = tracker.enticement_active + 1
+                        console.print("Finished interacting with enticement")
                     end
                 else
                     explorer:move_to_target()

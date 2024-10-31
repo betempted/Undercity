@@ -2,6 +2,7 @@ local task_manager = {}
 local tasks = {}
 local current_task = nil
 local last_call_time = 0.0
+local tracker = require "core.tracker"
 
 function task_manager.get_current_task()
     return current_task or { name = "Idle" }

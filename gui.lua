@@ -2,7 +2,7 @@ local gui = {}
 local developer_id = "TesXter"
 local script_name = "Undercity"
 local code_name = get_hash(developer_id .. "_" .. script_name)
-local version = "0.5.1"
+local version = "1.0"
 
 local function create_checkbox(key)
     return checkbox:new(false, get_hash(code_name .. "_" .. key))

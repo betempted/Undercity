@@ -13,7 +13,12 @@ local tracker = {
 
 local last_tick_time = 0
 
+local local_player = get_local_player()
+
 on_update(function()
+
+    if not local_player then return end
+
     local current_time = os.time()
 
     if current_time > last_tick_time then
@@ -25,7 +30,7 @@ on_update(function()
                 tracker.exit_undercity = true
             end
         end
-
+        
         -- console.print("Current time: " .. tostring(current_time))
         -- console.print("Eenticement active: " .. tostring(tracker.enticement_active))
     end

@@ -5,7 +5,7 @@ local settings = require "core.settings"
 local explorer = require "core.explorer"
 
 local task  = {
-    name = "Explore Undercity (E: " .. tostring(tracker.enticement_active) .. ")",
+    name = "Explore Undercity",
     shouldExecute = function()
         return utils.player_in_find_zone(enums.zone_names.undercity_zone) and not tracker.exit_undercity
     end,

@@ -6,7 +6,7 @@ local tracker    = require "core.tracker"
 local stuck_position = nil
 
 local task = {
-    name = "Kill Monsters (E: " .. tostring(tracker.enticement_active) .. ")",
+    name = "Kill Monsters",
     shouldExecute = function()
         return utils.get_closest_enemy()
     end,
