@@ -27,6 +27,7 @@ on_update(function()
         end
 
         -- console.print("Current time: " .. tostring(current_time))
+        console.print("Eenticement active: " .. tostring(tracker.enticement_active))
     end
 end)
 

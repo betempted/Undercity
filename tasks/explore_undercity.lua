@@ -1,6 +1,8 @@
 local utils = require "core.utils"
 local enums = require "data.enums"
 local tracker = require "core.tracker"
+local settings = require "core.settings"
+local explorer = require "core.explorer"
 
 local task  = {
     name = "Explore Undercity (E: " .. tostring(tracker.enticement_active) .. ")",
@@ -8,6 +10,22 @@ local task  = {
         return utils.player_in_find_zone(enums.zone_names.undercity_zone) and not tracker.exit_undercity
     end,
     Execute = function()
+        local warp_pad = utils.get_warp_pad()
+        if warp_pad then
+            if tracker.warp_pad_position == nil then
+                tracker.warp_pad_position = warp_pad:get_position()
+                console.print("Saved warp pad position")
+            end
+        end
+
+        if tracker.enticement_active >= settings.enticement_slider and tracker.warp_pad_position then
+            console.print("Moving to warp pad")
+            explorer:clear_path_and_target()
+            explorer:set_custom_target(tracker.warp_pad_position)
+            explorer:move_to_target()
+            return
+        end
+
         if utils.player_in_boss_room() then
             tracker.player_in_boss_room = true
         end
