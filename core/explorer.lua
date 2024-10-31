@@ -335,6 +335,7 @@ function explorer.reset_exploration()
     tracker.enticement_active = 0
     tracker.wait_to_exit = 0
     tracker.warp_pad_position = nil
+    tracker.actived_enticement = {}
 
     console.print("Exploration reset. All areas marked as unexplored.")
 end

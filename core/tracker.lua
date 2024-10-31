@@ -7,7 +7,8 @@ local tracker = {
     player_in_boss_room = false,
     wait_to_exit = 0,
     enticement_active = 0,
-    warp_pad_position = nil
+    warp_pad_position = nil,
+    actived_enticement = {}
 }
 
 local last_tick_time = 0

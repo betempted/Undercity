@@ -6,17 +6,27 @@ local task = {
     name = "Interact Enticement",
     shouldExecute = function()
         local enticement = utils.get_enticement()
-        return enticement and enticement:is_interactable()
+        if enticement then
+            local enticement_pos = enticement:get_position()
+            local enticement_pos_text = "x" .. tostring(enticement_pos:x()) .. " y" .. tostring(enticement_pos:y())
+            local actived_enticement = utils.is_actived_enticement(enticement_pos_text)
+            return enticement and not actived_enticement
+        end
+        return false
     end,
     Execute = function()
         local enticement = utils.get_enticement()
         if enticement then
-            if enticement:is_interactable() then
+            local enticement_pos = enticement:get_position()
+            local enticement_pos_text = "x" .. tostring(enticement_pos:x()) .. " y" .. tostring(enticement_pos:y())
+            local actived_enticement = utils.is_actived_enticement(enticement_pos_text)
+            if not actived_enticement then
                 explorer:clear_path_and_target()
                 explorer:set_custom_target(enticement:get_position())
                 if utils.distance_to(enticement) < 2 then
                     interact_object(enticement)
                     tracker.enticement_active = tracker.enticement_active + 1
+                    tracker.actived_enticement[enticement_pos_text] = true
                     console.print("Interacting with enticement")
                 else
                     explorer:move_to_target()

@@ -1,6 +1,11 @@
 local enums = require "data.enums"
 local settings = require "core.settings"
+local tracker = require "core.tracker"
 local utils = {}
+
+function utils.is_actived_enticement(enticement_pos_text)
+    return tracker.actived_enticement[enticement_pos_text]
+end
 
 function utils.get_undercity_brazier()
     local actors = actors_manager:get_all_actors()
