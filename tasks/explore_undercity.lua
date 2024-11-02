@@ -42,13 +42,16 @@ local task  = {
             if utils.check_if_there_is_a_stash() then
                 local have_item, item_pos = utils.find_nearby_items()
                 if have_item then
-                    console.print("Move near items")
-                    pathfinder.request_move(item_pos)
-                else
-                    if tracker.wait_to_exit == 0 and tracker.player_in_boss_room and utils.player_in_find_zone(enums.zone_names.undercity_zone) then
-                        tracker.wait_to_exit = 6
-                        console.print("Wait to exit: " .. tostring(tracker.wait_to_exit))
+                    local player_pos = get_player_position()
+                    if player_pos:dist_to_ignore_z(item_pos) > 3 then
+                        console.print("Move near items")
+                        pathfinder.request_move(item_pos)
                     end
+                end
+
+                if tracker.wait_to_exit == 0 and tracker.player_in_boss_room and utils.player_in_find_zone(enums.zone_names.undercity_zone) then
+                    tracker.wait_to_exit = 11
+                    console.print("Wait to exit: " .. tostring(tracker.wait_to_exit) .. " seconds")
                 end
             end
         end
