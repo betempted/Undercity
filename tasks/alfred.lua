@@ -62,9 +62,4 @@ function task.Execute()
     end
 end
 
-if settings.enabled and settings.use_alfred and PLUGIN_alfred_the_butler then
-    -- do an initial reset
-    reset()
-end
-
 return task
