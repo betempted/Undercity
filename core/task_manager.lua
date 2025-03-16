@@ -41,6 +41,7 @@ local task_files = {
     "interact_undercity_portal",
     "kill_boss",
     "kill_monsters",
+    "alfred",
     "exit_undercity",
     "explore_undercity",
     "open_undercity_portal",
