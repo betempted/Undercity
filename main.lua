@@ -28,6 +28,23 @@ local function render_pulse()
     end
 end
 
+-- Set Global access for other plugins
+UndercityPlugin = {
+    enable = function ()
+        gui.elements.main_toggle:set(true)
+    end,
+    disable = function ()
+        gui.elements.main_toggle:set(false)
+    end,
+    status = function ()
+        return {
+            ['enabled'] = gui.elements.main_toggle:get(),
+            ['task'] = task_manager.get_current_task()
+        }
+    end,
+}
+
+
 on_update(function()
     update_locals()
     main_pulse()
