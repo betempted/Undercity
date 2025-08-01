@@ -36,6 +36,7 @@ function task_manager.execute_tasks()
 end
 
 local task_files = {
+    "cheat_death",
     "interact_enticement",
     "interact_beacon",
     "interact_undercity_portal",
