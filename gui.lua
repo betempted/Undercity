@@ -17,6 +17,8 @@ gui.elements = {
     enticement_slider = slider_int:new(0, 3, 2, get_hash("enticement_slider")),
     -- path_angle_slider = slider_int:new(0, 360, 10, get_hash("path_angle_slider")),
     explorer_grid_size_slider = slider_int:new(10, 20, 15, get_hash("explorer_grid_size_slider")),
+    cheat_death = create_checkbox("cheat_death"),
+    escape_percentage = slider_int:new(10, 100, 40, get_hash("escape_percentage"))
 }
 
 function gui.render()
@@ -30,6 +32,10 @@ function gui.render()
         gui.elements.enticement_slider:render("Enticement", "How many at least enticements you want to activate before go next floor?")
         -- gui.elements.path_angle_slider:render("Path Angle", "Adjust the angle for path filtering (0-360 degrees)")
         gui.elements.explorer_grid_size_slider:render("Explorer Grid Size", "Adjust the grid size for exploration (1.0-2.0)")
+        gui.elements.cheat_death:render("Enable Hardcore cheat death", "Enable Hardcore cheat death")
+        if gui.elements.cheat_death:get() then
+            gui.elements.escape_percentage:render("Health %%", "%% health to immediately leave pit")
+        end
         gui.elements.settings_tree:pop()
     end
 
