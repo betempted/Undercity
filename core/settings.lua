@@ -9,7 +9,7 @@ local settings = {
     explorer_grid_size = gui.elements.explorer_grid_size_slider:get(),
     enticement_slider = gui.elements.enticement_slider:get(),
     cheat_death = false,
-    escape_percentage = 40,
+    escape_percentage = 40
 }
 
 function settings:update_settings()
