@@ -18,7 +18,19 @@ gui.elements = {
     -- path_angle_slider = slider_int:new(0, 360, 10, get_hash("path_angle_slider")),
     explorer_grid_size_slider = slider_int:new(10, 20, 15, get_hash("explorer_grid_size_slider")),
     cheat_death = create_checkbox("cheat_death"),
-    escape_percentage = slider_int:new(10, 100, 40, get_hash("escape_percentage"))
+    escape_percentage = slider_int:new(10, 100, 40, get_hash("escape_percentage")),
+    -- use movement spell
+    movement_tree = tree_node:new(2),
+    movement_spell_in_explorer = create_checkbox("movement_spell_in_explorer"),
+    use_evade_as_movement_spell = create_checkbox("use_evade_as_movement_spell"),
+    use_teleport = create_checkbox("use_teleport"),
+    use_teleport_enchanted = create_checkbox("use_teleport_enchanted"),
+    use_dash = create_checkbox("use_dash"),
+    use_shadow_step = create_checkbox("use_shadow_step"),
+    use_the_hunter = create_checkbox("use_the_hunter"),
+    use_soar = create_checkbox("use_soar"),
+    use_rushing_claw = create_checkbox("use_rushing_claw"),
+    use_leap = create_checkbox("use_leap")
 }
 
 function gui.render()
