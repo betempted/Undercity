@@ -73,6 +73,12 @@ local enums = require "data.enums"
 local settings = require "core.settings"
 local tracker = require "core.tracker"
 local gui = require "gui"
+
+-- Add this function near the top with other utility functions
+local function get_grid_size()
+    return gui.elements.explorer_grid_size_slider:get() / 10
+end
+
 local explorer = {
     enabled = false,
     is_task_running = false, --added to prevent boss dead pathing 
@@ -80,11 +86,10 @@ local explorer = {
 }
 local explored_areas = {}
 local target_position = nil
-local grid_size = settings.explorer_grid_size / 10  -- Updated grid_size calculation
-local exploration_radius = 16   -- Radius in which areas are considered explored
-local explored_buffer = 2      -- Buffer around explored areas in meters
-local max_target_distance = 120 -- Maximum distance for a new target
-local target_distance_states = {120, 40, 20, 5}
+local exploration_radius = 16
+local explored_buffer = 2
+local max_target_distance = 60
+local target_distance_states = {60, 90, 100, 125}
 local target_distance_index = 1
 local unstuck_target_distance = 15 -- Maximum distance for an unstuck target
 local stuck_threshold = 4      -- Seconds before the character is considered "stuck"
@@ -99,14 +104,14 @@ local explored_circles = {}
 -- Add these new variables at the top of the file
 local last_circle_position = nil
 local last_circle_time = 0
-local min_distance_between_circles = 16  -- Distance in units
-local min_time_between_circles = 5  -- Minimum time in seconds between circle creations
+local min_distance_between_circles = 0.5  -- Distance in units
+local min_time_between_circles = 0.5  -- Minimum time in seconds between circle creations
 
 -- Function to check and print pit start time and time spent in pitre
 local function check_pit_time()
     --console.print("Checking pit start time...")  -- Add this line for debugging
-    if tracker.undercity_start_time > 0 then
-        local time_spent_in_pit = get_time_since_inject() - tracker.undercity_start_time
+    if tracker.pit_start_time > 0 then
+        local time_spent_in_pit = get_time_since_inject() - tracker.pit_start_time
     else
         --console.print("Pit start time is not set or is zero.")  -- Add this line for debugging
     end
@@ -114,8 +119,8 @@ end
 
 local function check_and_reset_dungeons()
     --console.print("Executing check_and_reset_dungeons") -- Debug print
-    if tracker.undercity_start_time > 0 then
-        local time_spent_in_pit = get_time_since_inject() - tracker.undercity_start_time
+    if tracker.pit_start_time > 0 then
+        local time_spent_in_pit = get_time_since_inject() - tracker.pit_start_time
         local reset_time_threshold = settings.reset_time
         if time_spent_in_pit > reset_time_threshold then
             console.print("Time spent in pit is greater than " .. reset_time_threshold .. " seconds. Resetting all dungeons.")
@@ -145,12 +150,79 @@ function explorer:clear_path_and_target()
     path_index = 1
 end
 
-local function calculate_distance(point1, point2)
-    --console.print("Calculating distance between points.")
-    if not point2.x and point2 then
-        return point1:dist_to_ignore_z(point2:get_position())
+-- Replace/update the calculate_distance function
+local function calculate_distance(pos1, pos2)
+    -- Case 1: pos2 is a game object with get_position method
+    if type(pos2.get_position) == "function" then
+        return pos1:dist_to_ignore_z(pos2:get_position())
     end
-    return point1:dist_to_ignore_z(point2)
+    
+    -- Case 2: pos2 is a vector object
+    if type(pos2.x) == "function" then
+        return pos1:dist_to_ignore_z(pos2)
+    end
+    
+    -- Case 3: pos2 is our stored position table
+    if type(pos2.x) == "number" then
+        return pos1:dist_to_ignore_z(vec3:new(pos2.x, pos2.y, pos2.z))
+    end
+    
+    -- If we get here, we don't know how to handle the input
+    console.print("Warning: Unknown position type in calculate_distance")
+    return 0
+end
+
+--ai fix for start location spamming 
+function explorer:check_start_location_reached()
+    if not tracker.start_location_reached then
+        local start_location = utils.get_start_location_0()
+        if start_location then
+            local player_pos = get_player_position()
+            local start_pos = start_location:get_position()
+            local middle_start_pos = vec3:new(
+                start_pos:x() - 10,
+                start_pos:y() - 10 ,
+                start_pos:z()
+            )
+
+            if calculate_distance(player_pos, middle_start_pos) < 0.1 then  -- Adjust this distance as needed
+                tracker.start_location_reached = true
+                console.print("Start location reached")
+            end
+        end
+    end
+end
+
+-- Add this variable near the top with other state variables
+local last_start_location_check = 0
+
+function explorer:set_start_location_target()
+    local current_time = get_time_since_inject()
+    
+    -- Only check every 5 seconds
+    if current_time - last_start_location_check < 0.5 then
+        return false
+    end
+    
+    last_start_location_check = current_time
+
+    if self.is_task_running or self.current_task == "Kill Monsters" or tracker.start_location_reached then
+        return false
+    end
+
+    local start_location = utils.get_start_location_0()
+    if start_location then
+        local middle_start_location = vec3:new(
+            start_location:get_position():x() - 10,
+            start_location:get_position():y() - 10,
+            start_location:get_position():z()
+        )
+        console.print("Setting target to start location: " .. start_location:get_skin_name())
+        self:set_custom_target(middle_start_location)
+        return true
+    else
+        return false
+    end
 end
 
 --ai fix for stairs
@@ -160,14 +232,13 @@ local function set_height_of_valid_position(point)
 end
 
 local function get_grid_key(point)
-    --console.print("Getting grid key.")
-    return math.floor(point:x() / grid_size) .. "," ..
-        math.floor(point:y() / grid_size) .. "," ..
-        math.floor(point:z() / grid_size)
+    return math.floor(point:x() / get_grid_size()) .. "," ..
+           math.floor(point:y() / get_grid_size()) .. "," ..
+           math.floor(point:z() / get_grid_size())
 end
 
 -- Update the mark_area_as_explored function
-function explorer:mark_area_as_explored(center, radius)
+local function mark_area_as_explored(center, radius)
     console.print(string.format("Checking if area can be marked as explored: Center (%.2f, %.2f, %.2f), Radius: %.2f", center:x(), center:y(), center:z(), radius))
     
     -- Check distance from existing circles
@@ -205,8 +276,8 @@ local function find_nearest_unexplored_point(start_point, max_distance)
     local nearest_point = nil
     local nearest_distance = math.huge
 
-    for x = -check_radius, check_radius, grid_size do
-        for y = -check_radius, check_radius, grid_size do
+    for x = -check_radius, check_radius, get_grid_size() do
+        for y = -check_radius, check_radius, get_grid_size() do
             local point = vec3:new(
                 start_point:x() + x,
                 start_point:y() + y,
@@ -235,11 +306,11 @@ local function check_walkable_area()
     local check_radius = 5 -- Überprüfungsradius in Metern
 
     console.print(string.format("Player position: (%.2f, %.2f, %.2f)", player_pos:x(), player_pos:y(), player_pos:z()))
-    explorer:mark_area_as_explored(player_pos, exploration_radius)
+    mark_area_as_explored(player_pos, exploration_radius)
 
-    for x = -check_radius, check_radius, grid_size do
-        for y = -check_radius, check_radius, grid_size do
-            for z = -check_radius, check_radius, grid_size do -- Inclui z no loop
+    for x = -check_radius, check_radius, get_grid_size() do
+        for y = -check_radius, check_radius, get_grid_size() do
+            for z = -check_radius, check_radius, get_grid_size() do -- Inclui z no loop
                 local point = vec3:new(
                     player_pos:x() + x,
                     player_pos:y() + y,
@@ -285,7 +356,7 @@ local function find_distant_explored_circle()
     end
 
     console.print("No valid circles found, resetting exploration")
-    -- explorer.reset_exploration()
+    explorer.reset_exploration()
     return nil
 end
 
@@ -310,7 +381,7 @@ local function find_explored_direction_target()
     end
     
     console.print("No valid explored targets found. Resetting exploration.")
-    -- explorer.reset_exploration()
+    explorer.reset_exploration()
     return nil
 end
 
@@ -328,14 +399,6 @@ function explorer.reset_exploration()
     path_index = 1
     exploration_mode = "unexplored"
     last_movement_direction = nil
-    tracker.exit_undercity = false
-    tracker.finish_undercity = false
-    tracker.player_in_boss_room = false
-    tracker.killing_boss = false
-    tracker.enticement_active = 0
-    tracker.wait_to_exit = 0
-    tracker.warp_pad_position = nil
-    tracker.actived_enticement = {}
 
     console.print("Exploration reset. All areas marked as unexplored.")
 end
@@ -369,8 +432,8 @@ local function find_central_unexplored_target()
     local unexplored_points = {}
 
     -- Collect unexplored points
-    for x = -check_radius, check_radius, grid_size do
-        for y = -check_radius, check_radius, grid_size do
+    for x = -check_radius, check_radius, get_grid_size() do
+        for y = -check_radius, check_radius, get_grid_size() do
             local point = vec3:new(
                 player_pos:x() + x,
                 player_pos:y() + y,
@@ -439,8 +502,8 @@ local function find_random_explored_target()
     local check_radius = max_target_distance
     local explored_points = {}
 
-    for x = -check_radius, check_radius, grid_size do
-        for y = -check_radius, check_radius, grid_size do
+    for x = -check_radius, check_radius, get_grid_size() do
+        for y = -check_radius, check_radius, get_grid_size() do
             local point = vec3:new(
                 player_pos:x() + x,
                 player_pos:y() + y,
@@ -469,7 +532,7 @@ end
 local function is_in_last_targets(point)
     --console.print("Checking if point is in last targets.")
     for _, target in ipairs(last_explored_targets) do
-        if calculate_distance(point, target) < grid_size * 2 then
+        if calculate_distance(point, target) < get_grid_size() * 2 then
             return true
         end
     end
@@ -489,8 +552,8 @@ local function find_unstuck_target()
     local player_pos = get_player_position()
     local valid_targets = {}
 
-    for x = -unstuck_target_distance, unstuck_target_distance, grid_size do
-        for y = -unstuck_target_distance, unstuck_target_distance, grid_size do
+    for x = -unstuck_target_distance, unstuck_target_distance, get_grid_size() do
+        for y = -unstuck_target_distance, unstuck_target_distance, get_grid_size() do
             local point = vec3:new(
                 player_pos:x() + x,
                 player_pos:y() + y,
@@ -543,6 +606,7 @@ local function find_target(include_explored)
                     return furthest_circle.center
                 else
                     --console.print("No explored circles found. Resetting exploration.")
+                    --explorer.reset_exploration()
                     exploration_mode = "unexplored"
                     return find_central_unexplored_target()
                 end
@@ -568,8 +632,8 @@ local function get_neighbors(point)
     }
     for _, dir in ipairs(directions) do
         local neighbor = vec3:new(
-            point:x() + dir.x * grid_size,
-            point:y() + dir.y * grid_size,
+            point:x() + dir.x * get_grid_size(),
+            point:y() + dir.y * get_grid_size(),
             point:z()
         )
         neighbor = set_height_of_valid_position(neighbor)
@@ -583,8 +647,8 @@ local function get_neighbors(point)
 
     if #neighbors == 0 and last_movement_direction then
         local back_direction = vec3:new(
-            point:x() - last_movement_direction.x * grid_size,
-            point:y() - last_movement_direction.y * grid_size,
+            point:x() - last_movement_direction.x * get_grid_size(),
+            point:y() - last_movement_direction.y * get_grid_size(),
             point:z()
         )
         back_direction = set_height_of_valid_position(back_direction)
@@ -647,13 +711,13 @@ local function a_star(start, goal)
 
     while not open_set:empty() do
         iterations = iterations + 1
-        if iterations > 6666 then
+        if iterations > 666 then
             --console.print("Max iterations reached, aborting!")
             break
         end
 
         local current = open_set:pop()
-        if calculate_distance(current, goal) < grid_size then
+        if calculate_distance(current, goal) < get_grid_size() then
             max_target_distance = target_distance_states[1]
             target_distance_index = 1
             return reconstruct_path(came_from, current)
@@ -690,15 +754,29 @@ local function a_star(start, goal)
 end
 
 local last_a_star_call = 0.0
-local path_recalculation_interval = 3.0 -- Recalculate path every 2 seconds
+local path_recalculation_interval = 0.5 -- Recalculate path every 2 seconds
 local last_path_recalculation = 0.0
+
+local function is_enemies_nearby()
+    local player_pos = get_player_position()
+    local enemies = actors_manager.get_enemy_npcs()
+    local enemies_nearby = false
+    for _, enemy in ipairs(enemies) do
+        if calculate_distance(player_pos, enemy:get_position()) < 2 then
+            enemies_nearby = true
+        end
+    end
+    return enemies_nearby
+end
 
 -- Update the move_to_target function
 local function move_to_target()
     --console.print("Moving to target")
+    if tracker:is_boss_task_running() or explorer.is_task_running then
+        return  -- Do not set a path if the boss task is running
+    end
 
     if target_position then
-
         local player_pos = get_player_position()
         if calculate_distance(player_pos, target_position) > 500 then
             console.print("Target too far, finding new target")
@@ -708,33 +786,35 @@ local function move_to_target()
             return
         end
 
-        if not current_path or #current_path == 0 or path_index > #current_path then
-            -- console.print("Calculating new path to target")
+        if not current_path then
+            current_path = {}
+        end
+
+        if #current_path == 0 or path_index > #current_path then
+            console.print("Calculating new path to target")
             local current_core_time = get_time_since_inject()
             path_index = 1
-            current_path = nil
             current_path = a_star(player_pos, target_position)
             last_a_star_call = current_core_time
 
             if not current_path then
                 console.print("No path found to target. Finding new target.")
                 target_position = find_target(false)
+                current_path = {}  -- Initialize to empty table instead of nil
                 return
             end
         end
 
         local current_time = get_time_since_inject()
         if current_time - last_path_recalculation > path_recalculation_interval then
-            -- console.print("Recalculating path")
+            console.print("Recalculating path")
             local player_pos = get_player_position()
-            current_path = a_star(player_pos, target_position)
-            path_index = 1
+            local new_path = a_star(player_pos, target_position)
+            if new_path then  -- Only update if we got a valid path
+                current_path = new_path
+                path_index = 1
+            end
             last_path_recalculation = current_time
-        end
-
-        local next_point = current_path[path_index]
-        if next_point and not next_point:is_zero() then
-            pathfinder.request_move(next_point)
         end
 
         if current_path and current_path[path_index] then
@@ -759,9 +839,9 @@ local function move_to_target()
             end
         end
 
-        if calculate_distance(player_pos, target_position) < 2 then
+        if calculate_distance(player_pos, target_position) < 3 then
             console.print("Reached target position")
-            explorer:mark_area_as_explored(player_pos, exploration_radius)
+            mark_area_as_explored(player_pos, exploration_radius)
             if current_circle_target then
                 current_circle_target.visited = true
                 console.print("Marked current circle as visited")
@@ -787,7 +867,7 @@ local function move_to_target()
                     target_position = find_explored_direction_target()
                 end
             else
-                -- console.print("Finding new target")
+                console.print("Finding new target")
                 target_position = find_target(false)
             end
         end
@@ -894,23 +974,53 @@ local function draw_explored_area_bounds()
 end
 
 local last_call_time = 0.0
-local is_player_in_undercity = false
+local is_player_in_pit = false
+
+-- Move this function definition up, before on_update
+local function check_and_create_circle()
+    local current_time = get_time_since_inject()
+    local player_pos = get_player_position()
+    
+    console.print(string.format("Current player position: (%.2f, %.2f, %.2f)", 
+        player_pos:x(), player_pos:y(), player_pos:z()))
+    
+    if last_circle_position then
+        console.print(string.format("Last circle position: (%.2f, %.2f, %.2f)", 
+            last_circle_position.x, last_circle_position.y, last_circle_position.z))
+        local distance = calculate_distance(player_pos, last_circle_position)
+        local time_diff = current_time - last_circle_time
+        console.print(string.format("Distance from last circle: %.2f, Time since last circle: %.2f seconds", 
+            distance, time_diff))
+    else
+        console.print("No previous circle created yet")
+    end
+    
+    if not last_circle_position or 
+       (calculate_distance(player_pos, last_circle_position) >= min_distance_between_circles and
+        current_time - last_circle_time >= min_time_between_circles) then
+        
+        console.print("Creating new circle")
+        mark_area_as_explored(player_pos, exploration_radius)
+        console.print(string.format("Total explored circles: %d", #explored_circles))
+        
+        last_circle_position = {
+            x = player_pos:x(), 
+            y = player_pos:y(), 
+            z = player_pos:z()
+        }
+        last_circle_time = current_time
+    else
+        console.print("Not enough distance or time has passed to create a new circle")
+    end
+end
+
 on_update(function()
-    local local_player = get_local_player()
-    if not settings.enabled or not local_player then
+    if not settings.enabled then
         return
     end
 
-    if tracker.interacting_beacon then
-        return
-    end
-
-    if tracker.killing_boss then
-        return
-    end
-
-    if tracker.finish_undercity then
-        return
+    if tracker:is_boss_task_running() or explorer.current_task == "Stupid Ladder" then
+        return -- Don't run explorer logic if the boss task or stupid ladder is running
     end
 
     local world = world.get_current_world()
@@ -924,13 +1034,15 @@ on_update(function()
     local current_core_time = get_time_since_inject()
     if current_core_time - last_call_time > 0.85 then
         last_call_time = current_core_time
-        is_player_in_undercity = utils.player_in_find_zone(enums.zone_names.undercity_zone)
-        if not is_player_in_undercity then
+        is_player_in_pit = (utils.player_in_zone("EGD_MSWK_World_02") or utils.player_in_zone("EGD_MSWK_World_01")) and settings.enabled
+        if not is_player_in_pit then
             return
         end
 
         --console.print("Calling check_walkable_area")
         check_walkable_area()
+        check_and_create_circle()
+        
         local is_stuck = check_if_stuck()
         if is_stuck then
             --console.print("Character was stuck. Finding new target and attempting revive")
@@ -940,6 +1052,7 @@ on_update(function()
             current_path = {}
             path_index = 1
 
+            local local_player = get_local_player()
             if local_player and local_player:is_dead() then
                 revive_at_checkpoint()
             else
@@ -950,7 +1063,14 @@ on_update(function()
     end
 
     if current_core_time - last_call_time > 0.15 then
-        explorer:move_to_target()
+        explorer:check_start_location_reached()
+
+        if not explorer.start_location_reached and explorer:set_start_location_target() then
+            explorer:move_to_target()
+        else
+            -- Regular exploration logic
+            explorer:move_to_target()
+        end
     end
 
     check_pit_time()
@@ -987,10 +1107,17 @@ on_render(function()
 end)
 
 
-
 -- Add this new function near other helper functions
 local function calculate_distance(pos1, pos2)
-    return math.sqrt((pos1.x - pos2.x)^2 + (pos1.y - pos2.y)^2 + (pos1.z - pos2.z)^2)
+    local x1 = type(pos1.x) == "function" and pos1:x() or pos1.x
+    local y1 = type(pos1.y) == "function" and pos1:y() or pos1.y
+    local z1 = type(pos1.z) == "function" and pos1:z() or pos1.z
+    
+    local x2 = type(pos2.x) == "function" and pos2:x() or pos2.x
+    local y2 = type(pos2.y) == "function" and pos2:y() or pos2.y
+    local z2 = type(pos2.z) == "function" and pos2:z() or pos2.z
+    
+    return math.sqrt((x1 - x2)^2 + (y1 - y2)^2 + (z1 - z2)^2)
 end
 
 -- Update the check_and_create_circle function
@@ -998,13 +1125,16 @@ local function check_and_create_circle()
     local current_time = get_time_since_inject()
     local player_pos = get_player_position()
     
-    console.print(string.format("Current player position: (%.2f, %.2f, %.2f)", player_pos.x, player_pos.y, player_pos.z))
+    console.print(string.format("Current player position: (%.2f, %.2f, %.2f)", 
+        player_pos:x(), player_pos:y(), player_pos:z()))
     
     if last_circle_position then
-        console.print(string.format("Last circle position: (%.2f, %.2f, %.2f)", last_circle_position.x, last_circle_position.y, last_circle_position.z))
+        console.print(string.format("Last circle position: (%.2f, %.2f, %.2f)", 
+            last_circle_position.x, last_circle_position.y, last_circle_position.z))
         local distance = calculate_distance(player_pos, last_circle_position)
         local time_diff = current_time - last_circle_time
-        console.print(string.format("Distance from last circle: %.2f, Time since last circle: %.2f seconds", distance, time_diff))
+        console.print(string.format("Distance from last circle: %.2f, Time since last circle: %.2f seconds", 
+            distance, time_diff))
     else
         console.print("No previous circle created yet")
     end
@@ -1014,15 +1144,20 @@ local function check_and_create_circle()
         current_time - last_circle_time >= min_time_between_circles) then
         
         console.print("Creating new circle")
-        explorer:mark_area_as_explored(player_pos, exploration_radius)
+        mark_area_as_explored(player_pos, exploration_radius)
         console.print(string.format("Total explored circles: %d", #explored_circles))
         
-        last_circle_position = {x = player_pos.x, y = player_pos.y, z = player_pos.z}
+        last_circle_position = {
+            x = player_pos:x(), 
+            y = player_pos:y(), 
+            z = player_pos:z()
+        }
         last_circle_time = current_time
     else
         console.print("Not enough distance or time has passed to create a new circle")
     end
 end
+
 
 -- This function should be called in your main update loop
 function explorer:update()
@@ -1032,6 +1167,7 @@ function explorer:update()
     
     -- ... rest of the update logic ...
 end
+
 
 function explorer.clear_explored_circles()
     explored_circles = {}
