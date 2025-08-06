@@ -21,6 +21,7 @@ function settings:update_settings()
     settings.enticement_slider = gui.elements.enticement_slider:get()
     settings.cheat_death = gui.elements.cheat_death:get()
     settings.escape_percentage = gui.elements.escape_percentage:get()
+    settings.movement_spell_in_explorer = gui.elements.movement_spell_in_explorer:get()
     
 end
 

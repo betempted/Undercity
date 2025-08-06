@@ -737,13 +737,26 @@ local function move_to_target()
             pathfinder.request_move(next_point)
         end
 
-        if next_point and next_point.x and not next_point:is_zero() and calculate_distance(player_pos, next_point) < grid_size then
-            local direction = {
-                x = next_point:x() - player_pos:x(),
-                y = next_point:y() - player_pos:y()
-            }
-            last_movement_direction = direction
-            path_index = path_index + 1
+        if current_path and current_path[path_index] then
+            local next_point = current_path[path_index]
+            if next_point and not next_point:is_zero() then
+                if settings.movement_spell_in_explorer and not is_enemies_nearby() then
+                    explorer:movement_spell_to_target(target_position)
+                end
+                local new_player_pos = get_player_position()
+                if calculate_distance(player_pos, new_player_pos) == 0 then
+                    pathfinder.request_move(next_point)
+                end
+            end
+
+            if next_point and next_point.x and not next_point:is_zero() and calculate_distance(player_pos, next_point) < get_grid_size() then
+                local direction = {
+                    x = next_point:x() - player_pos:x(),
+                    y = next_point:y() - player_pos:y()
+                }
+                last_movement_direction = direction
+                path_index = path_index + 1
+            end
         end
 
         if calculate_distance(player_pos, target_position) < 2 then
