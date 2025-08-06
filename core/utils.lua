@@ -52,6 +52,18 @@ function utils.check_if_there_is_a_stash()
     return false
 end
 
+function utils.get_start_location_0()
+    local actors = actors_manager:get_all_actors()
+    for _, actor in pairs(actors) do
+        local name = actor:get_skin_name()
+        if name == enums.misc.start_location then
+            return actor
+        end
+    end
+    --console.print("No start location found")
+    return nil
+end
+
 function utils.distance_to(target)
     local player_pos = get_player_position()
     local target_pos = target:get_position()

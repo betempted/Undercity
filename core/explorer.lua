@@ -108,26 +108,26 @@ local min_distance_between_circles = 0.5  -- Distance in units
 local min_time_between_circles = 0.5  -- Minimum time in seconds between circle creations
 
 -- Function to check and print pit start time and time spent in pitre
-local function check_pit_time()
-    --console.print("Checking pit start time...")  -- Add this line for debugging
-    if tracker.pit_start_time > 0 then
-        local time_spent_in_pit = get_time_since_inject() - tracker.pit_start_time
-    else
-        --console.print("Pit start time is not set or is zero.")  -- Add this line for debugging
-    end
-end
+-- local function check_pit_time()
+--     --console.print("Checking pit start time...")  -- Add this line for debugging
+--     if tracker.pit_start_time > 0 then
+--         local time_spent_in_pit = get_time_since_inject() - tracker.pit_start_time
+--     else
+--         --console.print("Pit start time is not set or is zero.")  -- Add this line for debugging
+--     end
+-- end
 
-local function check_and_reset_dungeons()
-    --console.print("Executing check_and_reset_dungeons") -- Debug print
-    if tracker.pit_start_time > 0 then
-        local time_spent_in_pit = get_time_since_inject() - tracker.pit_start_time
-        local reset_time_threshold = settings.reset_time
-        if time_spent_in_pit > reset_time_threshold then
-            console.print("Time spent in pit is greater than " .. reset_time_threshold .. " seconds. Resetting all dungeons.")
-            reset_all_dungeons()
-        end
-    end
-end
+-- local function check_and_reset_dungeons()
+--     --console.print("Executing check_and_reset_dungeons") -- Debug print
+--     if tracker.pit_start_time > 0 then
+--         local time_spent_in_pit = get_time_since_inject() - tracker.pit_start_time
+--         local reset_time_threshold = settings.reset_time
+--         if time_spent_in_pit > reset_time_threshold then
+--             console.print("Time spent in pit is greater than " .. reset_time_threshold .. " seconds. Resetting all dungeons.")
+--             reset_all_dungeons()
+--         end
+--     end
+-- end
 
 -- A* pathfinding variables
 local current_path = {}
@@ -772,9 +772,9 @@ end
 -- Update the move_to_target function
 local function move_to_target()
     --console.print("Moving to target")
-    if tracker:is_boss_task_running() or explorer.is_task_running then
-        return  -- Do not set a path if the boss task is running
-    end
+    -- if tracker:is_boss_task_running() or explorer.is_task_running then
+    --     return  -- Do not set a path if the boss task is running
+    -- end
 
     if target_position then
         local player_pos = get_player_position()
@@ -1019,9 +1019,9 @@ on_update(function()
         return
     end
 
-    if tracker:is_boss_task_running() or explorer.current_task == "Stupid Ladder" then
-        return -- Don't run explorer logic if the boss task or stupid ladder is running
-    end
+    -- if tracker:is_boss_task_running() or explorer.current_task == "Stupid Ladder" then
+    --     return -- Don't run explorer logic if the boss task or stupid ladder is running
+    -- end
 
     local world = world.get_current_world()
     if world then
@@ -1073,8 +1073,8 @@ on_update(function()
         end
     end
 
-    check_pit_time()
-    check_and_reset_dungeons() 
+    -- check_pit_time()
+    -- check_and_reset_dungeons() 
 end)
 
 on_render(function()
