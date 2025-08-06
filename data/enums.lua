@@ -24,6 +24,16 @@ local enums = {
     },
     brazier_names = {
         brazier = "Aubrie_Test_Undercity_Crafter"
+    },
+    misc = {
+        obelisk = "TWN_Kehj_IronWolves_PitKey_Crafter",
+        start_location_0 = "start_location_0",
+        start_location = "Start_Location_0",
+        traversal_controller = "traversal_footprints_01_fxMesh",
+        blacksmith = "TWN_Scos_Cerrigar_Crafter_Blacksmith",
+        portal = "TownPortal",
+        jeweler = "TWN_Scos_Cerrigar_Vendor_Weapons",
+        gizmo_paragon_glyph_upgrade = "Gizmo_Paragon_Glyph_Upgrade"
     }
 }
 
